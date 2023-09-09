@@ -64,3 +64,9 @@ Code coverage
 Audit dependencies. Developed by EmbarkStudios.
 
 `cargo deny check`
+
+### Cargo expand
+
+Expands macro code.
+
+`cargo expand`
