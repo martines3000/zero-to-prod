@@ -41,7 +41,7 @@ async fn subscribe_returns_400_when_data_is_missing() {
             "email=alice%40gmail.com",
             "Input validation error: [name: Validation error: required [{\"value\": Null}]]",
         ),
-        ("", "Input validation error: [name: Validation error: required [{\"value\": Null}], email: Validation error: required [{\"value\": Null}]]"),
+        ("", "Input validation error: [email: Validation error: required [{\"value\": Null}], name: Validation error: required [{\"value\": Null}]]"),
     ];
 
     for (body, error_msg) in test_cases {
