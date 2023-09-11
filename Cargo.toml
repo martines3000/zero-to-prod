@@ -17,7 +17,7 @@ sqlx = { version = "0.7.1", default-features = false, features = [
     "chrono",               # Support for mapping SQL UUIDs to Uuid from Chrono crate
     "migrate",              # Support for database migrations (needed for tests)
 ] }
-axum = "0.6.20"
+axum = { version = "0.6.20", features = ["headers", "macros", "matched-path"] }
 hyper = { version = "0.14.27", features = ["full"] }
 serde = { version = "1.0.188", features = ["derive"] }
 serde_json = "1.0.105"
@@ -27,6 +27,6 @@ tower = "0.4.13"
 tracing = "0.1.37"
 tracing-subscriber = { version = "0.3.17", features = ["env-filter"] }
 validator = { version = "0.15", features = ["derive"] }
-uuid = "1.4.1"
+uuid = { version = "1.4.1", features = ["v4"] }
 chrono = "0.4.30"
 config = "0.13.3"

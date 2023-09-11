@@ -3,10 +3,11 @@ use axum::{
     Router,
 };
 
-use crate::routes::*;
+use crate::{app::ApplicationState, routes::*};
 
-pub fn build_axum_router() -> Router {
+pub fn build_axum_router(app_state: ApplicationState) -> Router {
     Router::new()
         .route("/health", get(health))
         .route("/subscriptions", post(subscribe))
+        .with_state(app_state)
 }

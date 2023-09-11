@@ -1,5 +1,5 @@
-use std::net::SocketAddr;
-use zero2prod::configuration::get_configuration;
+use std::{net::SocketAddr, sync::Arc};
+use zero2prod::{app::AppState, configuration::get_configuration};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -8,10 +8,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let address = format!("127.0.0.1:{}", configuration.application_port);
     println!("Listening on {}", address);
 
-    let axum_router = zero2prod::build_handler();
+    // Create app state
+    let app_state = Arc::new(AppState::new(configuration).await);
+
+    let axum_router = zero2prod::build_handler(app_state.clone());
 
     // Run with hyper
-    let addr = SocketAddr::from(([127, 0, 0, 1], configuration.application_port));
+    let addr = SocketAddr::from(([127, 0, 0, 1], app_state.config.application_port));
     axum::Server::bind(&addr)
         .serve(axum_router.into_make_service())
         .await
@@ -22,17 +25,22 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 #[cfg(test)]
 mod tests {
+    use std::sync::Arc;
+
     use axum::{
         body::Body,
         http::{Request, StatusCode},
     };
     use tower::Service; // for `call`
     use tower::ServiceExt;
-    use zero2prod::build_handler; // for `oneshot` and `ready`
+    use zero2prod::{app::AppState, build_handler, configuration::get_configuration}; // for `oneshot` and `ready`
 
     #[tokio::test]
     async fn test_multiple_requests() {
-        let mut app = build_handler();
+        let configuration = get_configuration().expect("Failed to read configuration.");
+        let app_state = Arc::new(AppState::new(configuration).await);
+
+        let mut app = build_handler(app_state.clone());
 
         let request = Request::builder()
             .uri("/health")

@@ -1,7 +1,7 @@
 use serde::Deserialize;
 
 #[derive(Deserialize)]
-pub struct Settings {
+pub struct ServerSettings {
     pub database: DatabaseSettings,
     pub application_port: u16,
 }
@@ -15,7 +15,7 @@ pub struct DatabaseSettings {
     pub database_name: String,
 }
 
-pub fn get_configuration() -> Result<Settings, config::ConfigError> {
+pub fn get_configuration() -> Result<ServerSettings, config::ConfigError> {
     let settings = config::Config::builder()
         .add_source(config::File::with_name("configuration").required(true))
         .build()?;

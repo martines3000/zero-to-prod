@@ -1,13 +1,11 @@
-use axum::{
-    async_trait,
-    extract::{rejection::FormRejection, FromRequest},
-    response::{IntoResponse, Response},
-    Form,
-};
-use hyper::{Request, StatusCode};
-use serde::{de::DeserializeOwned, Deserialize};
-use thiserror::Error;
+use axum::response::IntoResponse;
+use chrono::Utc;
+use hyper::StatusCode;
+use serde::Deserialize;
+use uuid::Uuid;
 use validator::Validate;
+
+use crate::{app::ApplicationState, validation::ValidatedForm};
 
 #[derive(Debug, Deserialize, Validate)]
 pub struct SubscribeFormInput {
@@ -17,53 +15,27 @@ pub struct SubscribeFormInput {
     pub email: Option<String>,
 }
 
-#[derive(Debug, Clone, Copy, Default)]
-pub struct ValidatedForm<T>(pub T);
-
-#[async_trait]
-impl<T, S, B> FromRequest<S, B> for ValidatedForm<T>
-where
-    T: DeserializeOwned + Validate,
-    S: Send + Sync,
-    Form<T>: FromRequest<S, B, Rejection = FormRejection>,
-    B: Send + 'static,
-{
-    type Rejection = ServerError;
-
-    async fn from_request(req: Request<B>, state: &S) -> Result<Self, Self::Rejection> {
-        let Form(value) = Form::<T>::from_request(req, state).await?;
-        value.validate()?;
-        Ok(ValidatedForm(value))
-    }
-}
-
-#[derive(Debug, Error)]
-pub enum ServerError {
-    #[error(transparent)]
-    ValidationError(#[from] validator::ValidationErrors),
-
-    #[error(transparent)]
-    AxumFormRejection(#[from] FormRejection),
-}
-
-impl IntoResponse for ServerError {
-    fn into_response(self) -> Response {
-        match self {
-            ServerError::ValidationError(_) => {
-                let message = format!("{}", self).replace('\n', ", ");
-                (StatusCode::BAD_REQUEST, message)
-            }
-            ServerError::AxumFormRejection(_) => (StatusCode::BAD_REQUEST, self.to_string()),
-        }
-        .into_response()
-    }
-}
-
 pub async fn subscribe(
+    state: ApplicationState,
     ValidatedForm(data): ValidatedForm<SubscribeFormInput>,
 ) -> impl IntoResponse {
-    print!("{:?}", data);
-
-    // Return 200 OK
-    ""
+    match sqlx::query!(
+        r#"
+        INSERT INTO subscriptions (id, email, name, subscribed_at)
+        VALUES ($1, $2, $3, $4)
+        "#,
+        Uuid::new_v4(),
+        data.email,
+        data.name,
+        Utc::now()
+    )
+    .execute(&state.pool)
+    .await
+    {
+        Ok(_) => StatusCode::OK,
+        Err(e) => {
+            println!("Failed to execute query: {}", e);
+            StatusCode::INTERNAL_SERVER_ERROR
+        }
+    }
 }

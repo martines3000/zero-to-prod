@@ -1,18 +1,15 @@
+use std::sync::Arc;
+
 use axum::http::{self, Request, StatusCode};
-use hyper::{client::connect, Body};
-use sqlx::{Connection, PgConnection};
+use hyper::Body;
 use tower::ServiceExt;
-use zero2prod::{build_handler, configuration};
+use zero2prod::{app::AppState, build_handler, configuration::get_configuration};
 
 #[tokio::test]
 async fn subscribe_returns_200_for_valid_form_data() {
-    let app = build_handler();
-    let configuration = configuration::get_configuration().expect("Failed to read configuration.");
-    let connection_string = configuration.database.connection_string();
-
-    let mut connection = PgConnection::connect(&connection_string)
-        .await
-        .expect("Failed to connect to Postgres.");
+    let configuration = get_configuration().expect("Failed to read configuration.");
+    let app_state = Arc::new(AppState::new(configuration).await);
+    let app = build_handler(app_state.clone());
 
     // Create a request with form data
     let name = "Alice";
@@ -37,7 +34,7 @@ async fn subscribe_returns_200_for_valid_form_data() {
 
     // Check that the subscription record is created in the database
     let saved = sqlx::query!("SELECT email, name FROM subscriptions",)
-        .fetch_one(&mut connection)
+        .fetch_one(&app_state.pool)
         .await
         .expect("Failed to fetch saved subscription.");
 
@@ -65,8 +62,11 @@ async fn subscribe_returns_400_when_data_is_missing() {
         ),
     ];
 
+    let configuration = get_configuration().expect("Failed to read configuration.");
+    let app_state = Arc::new(AppState::new(configuration).await);
+
     for (body, error_msg) in test_cases {
-        let app = build_handler();
+        let app = build_handler(app_state.clone());
 
         // Send POST request with "application/x-www-form-urlencoded" body
         let response = app
