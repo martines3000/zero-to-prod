@@ -1,11 +1,11 @@
 use axum::http::{Request, StatusCode};
 use hyper::Body;
 use tower::ServiceExt;
-use zero2prod::app;
+use zero2prod::build_handler;
 
 #[tokio::test]
 async fn health_check_works() {
-    let app = app();
+    let app = build_handler();
 
     // `Router` implements `tower::Service<Request<Body>>` so we can
     // call it like any tower service, no need to run an HTTP server.

@@ -1,11 +1,11 @@
 use axum::http::{self, Request, StatusCode};
 use hyper::Body;
 use tower::ServiceExt;
-use zero2prod::app;
+use zero2prod::build_handler;
 
 #[tokio::test]
 async fn subscribe_returns_200_for_valid_form_data() {
-    let app = app();
+    let app = build_handler();
 
     // Create a request with form data
     let name = "Alice";
@@ -41,11 +41,11 @@ async fn subscribe_returns_400_when_data_is_missing() {
             "email=alice%40gmail.com",
             "Input validation error: [name: Validation error: required [{\"value\": Null}]]",
         ),
-        ("", "Input validation error: [email: Validation error: required [{\"value\": Null}], name: Validation error: required [{\"value\": Null}]]"),
+        ("", "Input validation error: [name: Validation error: required [{\"value\": Null}], email: Validation error: required [{\"value\": Null}]]"),
     ];
 
     for (body, error_msg) in test_cases {
-        let app = app();
+        let app = build_handler();
 
         // Send POST request with "application/x-www-form-urlencoded" body
         let response = app

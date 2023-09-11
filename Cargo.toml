@@ -5,16 +5,18 @@ edition = "2021"
 license = "MIT"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [lib]
-path = "src/lib.rs"
-
-[[bin]]
 name = "zero2prod"
-path = "src/main.rs"
 
 [dependencies]
-sqlx = { version = "0.7.1", features = ["postgres", "runtime-tokio-rustls"] }
+sqlx = { version = "0.7.1", default-features = false, features = [
+    "runtime-tokio-rustls", # Tokio for futures, rustls for TLS
+    "macros",               # For sqlx::query! and sqlx::query_as! macros
+    "postgres",             # Postgres specific functionality
+    "uuid",                 # UUID support
+    "chrono",               # Support for mapping SQL UUIDs to Uuid from Chrono crate
+    "migrate",              # Support for database migrations (needed for tests)
+] }
 axum = "0.6.20"
 hyper = { version = "0.14.27", features = ["full"] }
 serde = { version = "1.0.188", features = ["derive"] }
@@ -25,3 +27,6 @@ tower = "0.4.13"
 tracing = "0.1.37"
 tracing-subscriber = { version = "0.3.17", features = ["env-filter"] }
 validator = { version = "0.15", features = ["derive"] }
+uuid = "1.4.1"
+chrono = "0.4.30"
+config = "0.13.3"
