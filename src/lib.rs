@@ -1,3 +1,4 @@
+pub mod configuration;
 mod router;
 pub mod routes;
 
