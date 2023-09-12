@@ -8,6 +8,10 @@ license = "MIT"
 [lib]
 name = "zero2prod"
 
+[[test]]
+name = "all"
+path = "src/tests/all.rs"
+
 [dependencies]
 sqlx = { version = "0.7.1", default-features = false, features = [
     "runtime-tokio-rustls", # Tokio for futures, rustls for TLS
@@ -17,7 +21,13 @@ sqlx = { version = "0.7.1", default-features = false, features = [
     "chrono",               # Support for mapping SQL UUIDs to Uuid from Chrono crate
     "migrate",              # Support for database migrations (needed for tests)
 ] }
-axum = { version = "0.6.20", features = ["headers", "macros", "matched-path"] }
+
+axum = { version = "0.6.20", features = [
+    "headers",
+    "macros",
+    "matched-path",
+    "tracing",
+] }
 hyper = { version = "0.14.27", features = ["full"] }
 serde = { version = "1.0.188", features = ["derive"] }
 serde_json = "1.0.105"
@@ -30,3 +40,4 @@ validator = { version = "0.15", features = ["derive"] }
 uuid = { version = "1.4.1", features = ["v4"] }
 chrono = "0.4.30"
 config = "0.13.3"
+tower-http = { version = "0.4.4", features = ["trace"] }

@@ -6,14 +6,14 @@ use sqlx::postgres::PgPoolOptions;
 
 use crate::configuration;
 
-pub struct AppState {
+pub struct ServerState {
     // The server configuration
     pub config: configuration::ServerSettings,
     // The database connection pool
     pub pool: sqlx::PgPool,
 }
 
-impl AppState {
+impl ServerState {
     pub async fn new(config: configuration::ServerSettings) -> Self {
         // Set up connection pool or panic
         let pool = PgPoolOptions::new()
@@ -29,11 +29,11 @@ impl AppState {
 
 #[derive(Clone, FromRequestParts)]
 #[from_request(via(State))]
-pub struct ApplicationState(pub Arc<AppState>);
+pub struct AppState(pub Arc<ServerState>);
 
 // Deref so you can still access the inner fields easily
-impl Deref for ApplicationState {
-    type Target = AppState;
+impl Deref for AppState {
+    type Target = ServerState;
 
     fn deref(&self) -> &Self::Target {
         &self.0

@@ -6,14 +6,12 @@ pub mod validation;
 
 use std::sync::Arc;
 
-use app::{AppState, ApplicationState};
+use app::{AppState, ServerState};
 
 use crate::router::build_axum_router;
 
-pub fn build_handler(app_state: Arc<AppState>) -> axum::Router {
-    let state = ApplicationState(app_state);
-
-    
+pub fn build_handler(server_state: Arc<ServerState>) -> axum::Router {
+    let state = AppState(server_state);
 
     build_axum_router(state)
 }

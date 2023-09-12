@@ -3,13 +3,13 @@ use std::sync::Arc;
 use axum::http::{Request, StatusCode};
 use hyper::Body;
 use tower::ServiceExt;
-use zero2prod::{app::AppState, build_handler, configuration::get_configuration};
+use zero2prod::{app::ServerState, build_handler, configuration::get_configuration};
 
 #[tokio::test]
 async fn health_check_works() {
     let configuration = get_configuration().expect("Failed to read configuration.");
-    let app_state = Arc::new(AppState::new(configuration).await);
-    let app = build_handler(app_state.clone());
+    let server_state = Arc::new(ServerState::new(configuration).await);
+    let app = build_handler(server_state.clone());
 
     // `Router` implements `tower::Service<Request<Body>>` so we can
     // call it like any tower service, no need to run an HTTP server.

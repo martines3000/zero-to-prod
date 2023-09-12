@@ -5,7 +5,7 @@ use serde::Deserialize;
 use uuid::Uuid;
 use validator::Validate;
 
-use crate::{app::ApplicationState, validation::ValidatedForm};
+use crate::{app::AppState, validation::ValidatedForm};
 
 #[derive(Debug, Deserialize, Validate)]
 pub struct SubscribeFormInput {
@@ -16,7 +16,7 @@ pub struct SubscribeFormInput {
 }
 
 pub async fn subscribe(
-    state: ApplicationState,
+    state: AppState,
     ValidatedForm(data): ValidatedForm<SubscribeFormInput>,
 ) -> impl IntoResponse {
     match sqlx::query!(
