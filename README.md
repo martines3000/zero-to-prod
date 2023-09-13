@@ -70,3 +70,9 @@ Audit dependencies. Developed by EmbarkStudios.
 Expands macro code.
 
 `cargo expand`
+
+### SQLX
+
+To prepare offline queries
+
+`cargo sqlx prepare`

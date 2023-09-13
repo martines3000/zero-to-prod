@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use axum::http::{self, Request, StatusCode};
 use hyper::Body;
 use tower::ServiceExt;
