@@ -17,7 +17,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Panic if we can't read configuration
     let configuration = get_configuration().expect("Failed to read configuration.");
-    let address = format!("127.0.0.1:{}", configuration.application_port);
+    let address = format!("0.0.0.0:{}", configuration.application_port);
     println!("Listening on {}", address);
 
     // Create app state
@@ -27,7 +27,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         zero2prod::build_handler(server_state.clone()).layer(TraceLayer::new_for_http());
 
     // Run with hyper
-    let addr = SocketAddr::from(([127, 0, 0, 1], server_state.config.application_port));
+    let addr = SocketAddr::from(([0, 0, 0, 0], server_state.config.application_port));
     axum::Server::bind(&addr)
         .serve(axum_router.into_make_service())
         .await

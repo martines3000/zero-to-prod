@@ -14,12 +14,12 @@ path = "src/tests/all.rs"
 
 [dependencies]
 sqlx = { version = "0.7.1", default-features = false, features = [
-    "runtime-tokio-rustls", # Tokio for futures, rustls for TLS
-    "macros",               # For sqlx::query! and sqlx::query_as! macros
-    "postgres",             # Postgres specific functionality
-    "uuid",                 # UUID support
-    "chrono",               # Support for mapping SQL UUIDs to Uuid from Chrono crate
-    "migrate",              # Support for database migrations (needed for tests)
+    "runtime-tokio-rustls",
+    "macros",
+    "postgres",
+    "uuid",
+    "chrono",
+    "migrate",
 ] }
 
 axum = { version = "0.6.20", features = [
